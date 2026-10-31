@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chloe's Logistics Workbench</title>
+    <!-- Tailwind CSS for utility styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts: Plus Jakarta Sans for modern clean typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        roseAccent: '#E85D75',
+                        roseAccentHover: '#D84B63',
+                        softCream: '#FFFDF6',
+                        mistyPink: '#FFF0F5',
+                        glassBorder: 'rgba(255, 255, 255, 0.75)',
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar and frosted glass styles */
+        body {
+            background: linear-gradient(135deg, #FFF0F5 0%, #FFFDF5 50%, #FFF6EE 100%);
+            background-attachment: fixed;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #33272A;
+        }
+
+        .frosted-card {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.85);
+            border-radius: 24px;
+            box-shadow: 0 10px 30px -5px rgba(232, 93, 117, 0.05), 0 4px 12px 0 rgba(0, 0, 0, 0.02);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .frosted-card:hover {
+            box-shadow: 0 14px 35px -5px rgba(232, 93, 117, 0.1), 0 6px 15px 0 rgba(0, 0, 0, 0.03);
+            border-color: rgba(255, 255, 255, 1);
+        }
+
+        .frosted-nav {
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.7);
+        }
+
+        .editable-text {
+            outline: none;
+            border-radius: 6px;
+            padding: 1px 4px;
+            transition: background-color 0.2s, box-shadow 0.2s;
+        }
+
+        .editable-text:hover {
+            background-color: rgba(232, 93, 117, 0.08);
+            cursor: pointer;
+        }
+
+        .editable-text:focus {
+            background-color: #FFFFFF;
+            box-shadow: 0 0 0 2px #E85D75;
+            cursor: text;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .section-target {
+            scroll-margin-top: 100px;
+        }
+
+        /* Custom progress bar animations */
+        .progress-bar-fill {
+            transition: width 0.5s ease-out;
+        }
+
+        /* Hide scrollbars for clean UI */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col md:flex-row antialiased selection:bg-roseAccent selection:text-white">
+
+    <!-- Toast Notification for Auto-Save -->
+    <div id="toast" class="fixed top-5 right-5 z-50 transform translate-y-[-100px] opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-white/90 backdrop-blur-md border border-roseAccent/20 text-slate-800 px-4 py-3 rounded-2xl shadow-xl flex items-center gap-3">
+            <i data-lucide="check-circle-2" class="w-5 h-5 text-roseAccent"></i>
+            <span id="toast-message" class="text-sm font-medium">Changes saved to workspace</span>
+        </div>
+    </div>
+
+    <!-- 7. LEFT VERTICAL NAVIGATION -->
+    <aside class="w-full md:w-64 frosted-nav shrink-0 md:h-screen md:sticky md:top-0 z-40 flex flex-col justify-between p-6">
+        <div>
+            <!-- Brand / Student Header -->
+            <div class="flex items-center gap-3 mb-8 px-2">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-roseAccent to-pink-300 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-roseAccent/20">
+                    C
+                </div>
+                <div>
+                    <h2 class="font-bold text-slate-800 leading-tight">Chloe</h2>
+                    <p class="text-xs text-roseAccent font-semibold tracking-wide">LOGISTICS MAJOR</p>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="space-y-1.5">
+                <p class="px-3 text-[11px] font-bold tracking-wider text-slate-400 uppercase mb-2">Workspace</p>
+                
+                <a href="#schedule" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:text-roseAccent hover:bg-rose-50/60 transition-all">
+                    <i data-lucide="calendar" class="w-4 h-4 text-roseAccent"></i>
+                    Schedule & Timeline
+                </a>
+                
+                <a href="#tasks" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:text-roseAccent hover:bg-rose-50/60 transition-all">
+                    <i data-lucide="check-square" class="w-4 h-4 text-roseAccent"></i>
+                    Daily To-Do List
+                </a>
+
+                <a href="#metrics" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:text-roseAccent hover:bg-rose-50/60 transition-all">
+                    <i data-lucide="bar-chart-3" class="w-4 h-4 text-roseAccent"></i>
+                    Logistics Metrics
+                </a>
+
+                <p class="px-3 text-[11px] font-bold tracking-wider text-slate-400 uppercase mt-6 mb-2">Personal</p>
+
+                <a href="#goals" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:text-roseAccent hover:bg-rose-50/60 transition-all">
+                    <i data-lucide="target" class="w-4 h-4 text-roseAccent"></i>
+                    Travel & Goals
+                </a>
+
+                <a href="#resources" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:text-roseAccent hover:bg-rose-50/60 transition-all">
+                    <i data-lucide="folder-kanban" class="w-4 h-4 text-roseAccent"></i>
+                    Quick Resources
+                </a>
+            </nav>
+        </div>
+
+        <!-- Quick Reset/Save Status -->
+        <div class="mt-6 pt-4 border-t border-slate-200/50 flex items-center justify-between px-2">
+            <span class="text-xs text-slate-400 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                Editable Mode Active
+            </span>
+            <button onclick="resetDefaultData()" title="Reset to Defaults" class="text-xs text-slate-400 hover:text-roseAccent transition">
+                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-1 p-4 md:p-8 max-w-7xl mx-auto space-y-8 w-full">
+
+        <!-- 1. TOP BAR -->
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2">
+            <!-- Date Display -->
+            <div class="flex items-center gap-2 text-slate-600 text-sm font-medium">
+                <i data-lucide="calendar-days" class="w-4 h-4 text-roseAccent"></i>
+                <span id="current-date-str">Loading date...</span>
+            </div>
+
+            <!-- Right Controls: Search, Notifications, Avatar -->
+            <div class="flex items-center gap-3">
+                <!-- Search Bar -->
+                <div class="relative flex-1 md:w-64">
+                    <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" placeholder="Search logistics notes..." class="w-full pl-9 pr-4 py-2 rounded-2xl bg-white/70 border border-white/80 focus:outline-none focus:ring-2 focus:ring-roseAccent/40 text-sm text-slate-700 placeholder-slate-400 backdrop-blur-md">
+                </div>
+
+                <!-- Notification Icon -->
+                <button class="w-10 h-10 rounded-2xl bg-white/70 border border-white/80 flex items-center justify-center text-slate-600 hover:text-roseAccent hover:bg-white transition relative shadow-sm">
+                    <i data-lucide="bell" class="w-4 h-4"></i>
+                    <span class="w-2 h-2 rounded-full bg-roseAccent absolute top-2.5 right-2.5"></span>
+                </button>
+
+                <!-- Avatar -->
+                <div class="w-10 h-10 rounded-2xl overflow-hidden border-2 border-white shadow-sm shrink-0">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80" alt="Chloe" class="w-full h-full object-cover">
+                </div>
+            </div>
+        </header>
+
+        <!-- 2. GREETING AREA -->
+        <section class="frosted-card p-6 md:p-8 relative overflow-hidden">
+            <div class="max-w-2xl">
+                <h1 class="text-3xl md:text-5xl font-extrabold text-slate-800 tracking-tight mb-2">
+                    Welcome back, <span class="editable-text text-roseAccent" id="user-name" contenteditable="true">Chloe</span> ✨
+                </h1>
+                <p class="text-slate-600 text-base md:text-lg leading-relaxed font-normal">
+                    "<span class="editable-text italic" id="daily-quote" contenteditable="true">Efficiency is doing things right; effectiveness is doing the right things in supply chains.</span>"
+                </p>
+            </div>
+            <!-- Subtle decorative background element -->
+            <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-gradient-to-br from-roseAccent/10 to-orange-200/20 rounded-full blur-2xl pointer-events-none"></div>
+        </section>
+
+        <!-- 3. QUICK INPUT BAR -->
+        <section class="frosted-card p-3 md:p-4 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-roseAccent flex items-center justify-center text-white shrink-0 shadow-md shadow-roseAccent/30">
+                <i data-lucide="plus" class="w-5 h-5"></i>
+            </div>
+            <input type="text" id="quick-input-field" placeholder="Add a quick task, new vocabulary term, or assignment idea..." class="flex-1 bg-transparent border-none focus:outline-none text-slate-700 placeholder-slate-400 text-sm md:text-base font-medium">
+            <button onclick="handleQuickAdd()" class="px-4 py-2 rounded-xl bg-roseAccent hover:bg-roseAccentHover text-white font-medium text-sm transition shadow-sm shrink-0">
+                Quick Add
+            </button>
+        </section>
+
+        <!-- 4. TOP 4 CARDS ROW (KPIs / METRICS) -->
+        <section id="metrics" class="section-target">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <i data-lucide="activity" class="w-5 h-5 text-roseAccent"></i>
+                    Core Academic Metrics
+                </h3>
+                <span class="text-xs text-slate-400 font-medium">Click any value to edit</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                
+                <!-- KPI 1: Semester GPA -->
+                <div class="frosted-card p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Card 1</span>
+                            <span class="p-1.5 rounded-lg bg-rose-50 text-roseAccent"><i data-lucide="graduation-cap" class="w-4 h-4"></i></span>
+                        </div>
+                        <h4 class="font-bold text-slate-700 text-base mb-1 editable-text" id="kpi1-title" contenteditable="true">Semester GPA</h4>
+                        <div class="flex items-baseline gap-2 my-2">
+                            <span class="text-3xl font-extrabold text-slate-800 editable-text" id="kpi1-curr" contenteditable="true">3.6</span>
+                            <span class="text-sm text-slate-400 font-semibold">/ <span class="editable-text" id="kpi1-target" contenteditable="true">4.0 Goal</span></span>
+                        </div>
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-slate-100">
+                        <p class="text-xs text-slate-500">
+                            Focus: <span class="editable-text font-medium text-slate-700" id="kpi1-note" contenteditable="true">Microeconomics & Marketing</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- KPI 2: Industry Vocab -->
+                <div class="frosted-card p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Card 2</span>
+                            <span class="p-1.5 rounded-lg bg-rose-50 text-roseAccent"><i data-lucide="book-open" class="w-4 h-4"></i></span>
+                        </div>
+                        <h4 class="font-bold text-slate-700 text-base mb-1 editable-text" id="kpi2-title" contenteditable="true">Logistics Vocab</h4>
+                        <div class="flex items-baseline gap-2 my-2">
+                            <span class="text-3xl font-extrabold text-slate-800 editable-text" id="kpi2-curr" contenteditable="true">120</span>
+                            <span class="text-sm text-slate-400 font-semibold">/ <span class="editable-text" id="kpi2-target" contenteditable="true">300 Terms</span></span>
+                        </div>
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-slate-100">
+                        <p class="text-xs text-slate-500">
+                            Focus: <span class="editable-text font-medium text-slate-700" id="kpi2-note" contenteditable="true">Incoterms 2020 & Bill of Lading</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- KPI 3: Project Progress -->
+                <div class="frosted-card p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Card 3</span>
+                            <span class="p-1.5 rounded-lg bg-rose-50 text-roseAccent"><i data-lucide="pie-chart" class="w-4 h-4"></i></span>
+                        </div>
+                        <h4 class="font-bold text-slate-700 text-base mb-1 editable-text" id="kpi3-title" contenteditable="true">Supply Chain Project</h4>
+                        <div class="flex items-baseline gap-2 my-2">
+                            <span class="text-3xl font-extrabold text-slate-800 editable-text" id="kpi3-curr" contenteditable="true">65%</span>
+                            <span class="text-sm text-slate-400 font-semibold">Target: <span class="editable-text" id="kpi3-target" contenteditable="true">100%</span></span>
+                        </div>
+                        <!-- Progress bar display -->
+                        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden mt-1">
+                            <div id="kpi3-bar" class="bg-roseAccent h-full progress-bar-fill rounded-full" style="width: 65%;"></div>
+                        </div>
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-slate-100">
+                        <p class="text-xs text-slate-500">
+                            Focus: <span class="editable-text font-medium text-slate-700" id="kpi3-note" contenteditable="true">Cold Chain Distribution Case Study</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- KPI 4: Self-Study & Reading -->
+                <div class="frosted-card p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Card 4</span>
+                            <span class="p-1.5 rounded-lg bg-rose-50 text-roseAccent"><i data-lucide="clock" class="w-4 h-4"></i></span>
+                        </div>
+                        <h4 class="font-bold text-slate-700 text-base mb-1 editable-text" id="kpi4-title" contenteditable="true">Weekly Reading</h4>
+                        <div class="flex items-baseline gap-2 my-2">
+                            <span class="text-3xl font-extrabold text-slate-800 editable-text" id="kpi4-curr" contenteditable="true">14 hrs</span>
+                            <span class="text-sm text-slate-400 font-semibold">/ <span class="editable-text" id="kpi4-target" contenteditable="true">20 hrs</span></span>
+                        </div>
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-slate-100">
+                        <p class="text-xs text-slate-500">
+                            Focus: <span class="editable-text font-medium text-slate-700" id="kpi4-note" contenteditable="true">Global Logistics Journals & Business</span>
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 5. LOWER 3 CARDS ROW -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- CARD 1 (Spans 2 Columns): Schedule & Timeline -->
+            <div id="schedule" class="section-target lg:col-span-2 frosted-card p-6 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-2">
+                            <div class="p-2 rounded-xl bg-rose-50 text-roseAccent">
+                                <i data-lucide="calendar" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-lg editable-text" id="sched-title" contenteditable="true">Class Schedule & Timeline</h3>
+                                <p class="text-xs text-slate-400">Weekly breakdown & academic commitments</p>
+                            </div>
+                        </div>
+                        <button onclick="addScheduleBlock()" class="text-xs text-roseAccent hover:bg-rose-50 px-3 py-1.5 rounded-lg font-semibold transition border border-roseAccent/20 flex items-center gap-1">
+                            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Day
+                        </button>
+                    </div>
+
+                    <!-- Timeline items list -->
+                    <div id="schedule-list" class="space-y-4">
+                        <!-- Items rendered via JS -->
+                    </div>
+                </div>
+                
+                <div class="mt-6 pt-4 border-t border-slate-200/50 flex justify-between items-center text-xs text-slate-400">
+                    <span>Double click text to modify schedules</span>
+                    <span class="font-medium text-roseAccent">Updated for current semester</span>
+                </div>
+            </div>
+
+            <!-- CARD 2: Editable To-Do List -->
+            <div id="tasks" class="section-target frosted-card p-6 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <div class="p-2 rounded-xl bg-rose-50 text-roseAccent">
+                                <i data-lucide="check-square" class="w-5 h-5"></i>
+                            </div>
+                            <h3 class="font-bold text-slate-800 text-lg editable-text" id="todo-title" contenteditable="true">Daily Tasks</h3>
+                        </div>
+                        <span id="todo-count" class="text-xs bg-rose-100 text-roseAccent font-bold px-2.5 py-1 rounded-full">0/0</span>
+                    </div>
+
+                    <!-- Add task inline -->
+                    <div class="flex gap-2 mb-4">
+                        <input type="text" id="new-todo-input" placeholder="Add new task..." class="flex-1 text-sm bg-white/80 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-roseAccent">
+                        <button onclick="addTodoItem()" class="bg-roseAccent text-white p-2 rounded-xl hover:bg-roseAccentHover transition">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+
+                    <!-- To-Do items list -->
+                    <div id="todo-list" class="space-y-2.5 max-h-[280px] overflow-y-auto pr-1 no-scrollbar">
+                        <!-- Tasks rendered via JS -->
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-slate-200/50 text-center">
+                    <span class="text-xs text-slate-400">Check completed tasks or click text to edit</span>
+                </div>
+            </div>
+
+            <!-- CARD 3: Personal Goals & Aspirations -->
+            <div id="goals" class="section-target lg:col-span-3 frosted-card p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-2">
+                        <div class="p-2 rounded-xl bg-rose-50 text-roseAccent">
+                            <i data-lucide="sparkles" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-lg editable-text" id="goals-title" contenteditable="true">Personal Goals & Lifestyle</h3>
+                            <p class="text-xs text-slate-400">Growth objectives outside academic lectures</p>
+                        </div>
+                    </div>
+                    <button onclick="addGoalItem()" class="text-xs text-roseAccent hover:bg-rose-50 px-3 py-1.5 rounded-lg font-semibold transition border border-roseAccent/20 flex items-center gap-1">
+                        <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Goal
+                    </button>
+                </div>
+
+                <div id="goals-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Goal Cards rendered via JS -->
+                </div>
+            </div>
+
+        </section>
+
+        <!-- 6. BOTTOM FLOATING BAR & QUICK RESOURCES -->
+        <section id="resources" class="section-target pt-4">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                    <i data-lucide="bookmark" class="w-4 h-4 text-roseAccent"></i>
+                    Quick Resource Access Bar
+                </h3>
+                <span class="text-xs text-slate-400">Custom shortcuts</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                
+                <!-- Entry 1 -->
+                <div class="frosted-card p-4 flex items-center justify-between group hover:border-roseAccent/50 transition">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-rose-50 text-roseAccent flex items-center justify-center shrink-0">
+                            <i data-lucide="file-spreadsheet" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-sm text-slate-800 editable-text" id="res1-name" contenteditable="true">Import-Export ECUS Form</h4>
+                            <p class="text-xs text-slate-400 editable-text" id="res1-desc" contenteditable="true">Customs declaration templates</p>
+                        </div>
+                    </div>
+                    <a href="#" onclick="alert('Opening ECUS Declaration Resource Hub...'); return false;" class="text-slate-400 group-hover:text-roseAccent transition">
+                        <i data-lucide="external-link" class="w-4 h-4"></i>
+                    </a>
+                </div>
+
+                <!-- Entry 2 -->
+                <div class="frosted-card p-4 flex items-center justify-between group hover:border-roseAccent/50 transition">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-rose-50 text-roseAccent flex items-center justify-center shrink-0">
+                            <i data-lucide="book" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-sm text-slate-800 editable-text" id="res2-name" contenteditable="true">Vocabulary Handbook</h4>
+                            <p class="text-xs text-slate-400 editable-text" id="res2-desc" contenteditable="true">Incoterms & logistics glossary</p>
+                        </div>
+                    </div>
+                    <a href="#" onclick="alert('Opening Vocabulary Handbook...'); return false;" class="text-slate-400 group-hover:text-roseAccent transition">
+                        <i data-lucide="external-link" class="w-4 h-4"></i>
+                    </a>
+                </div>
+
+                <!-- Entry 3 -->
+                <div class="frosted-card p-4 flex items-center justify-between group hover:border-roseAccent/50 transition">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-rose-50 text-roseAccent flex items-center justify-center shrink-0">
+                            <i data-lucide="lightbulb" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-sm text-slate-800 editable-text" id="res3-name" contenteditable="true">Quick Idea Notes</h4>
+                            <p class="text-xs text-slate-400 editable-text" id="res3-desc" contenteditable="true">Supply chain case studies</p>
+                        </div>
+                    </div>
+                    <a href="#" onclick="alert('Opening Idea Scratchpad...'); return false;" class="text-slate-400 group-hover:text-roseAccent transition">
+                        <i data-lucide="external-link" class="w-4 h-4"></i>
+                    </a>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- FOOTER & ACCEPTANCE REPORT -->
+        <footer class="pt-8 pb-12 border-t border-slate-200/60 text-xs text-slate-400 space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
+                <p>© Chloe's Interactive Workbench — Designed for Logistics Excellence</p>
+                <div class="flex gap-4">
+                    <span class="hover:text-slate-600">Single File HTML Application</span>
+                    <span>•</span>
+                    <span class="hover:text-slate-600">Local Auto-Save Enabled</span>
+                </div>
+            </div>
+        </footer>
+
+    </main>
+
+    <!-- JAVASCRIPT LOGIC & STATE MANAGEMENT -->
+    <script>
+        // DEFAULT INITIAL DATA FOR CHLOE
+        const defaultData = {
+            userName: "Chloe",
+            quote: "Efficiency is doing things right; effectiveness is doing the right things in supply chains.",
+            kpis: {
+                kpi1: { title: "Semester GPA", curr: "3.6", target: "3.8 Goal", note: "Microeconomics & Marketing" },
+                kpi2: { title: "Logistics Vocab", curr: "120", target: "300 Terms", note: "Incoterms 2020 & Bill of Lading" },
+                kpi3: { title: "Supply Chain Project", curr: "65%", target: "100%", note: "Cold Chain Distribution Case Study" },
+                kpi4: { title: "Weekly Reading", curr: "14 hrs", target: "20 hrs", note: "Global Logistics Journals & Business" }
+            },
+            schedule: [
+                { id: 1, day: "Mon - Tue", tag: "Core Logistics", detail: "Supply Chain Management lectures, Freight Forwarding theory & Warehouse Ops." },
+                { id: 2, day: "Wed - Thu", tag: "Group Projects", detail: "Marketing case studies, Logistics team slide preparation & Excel modeling." },
+                { id: 3, day: "Weekend", tag: "Review & Life", detail: "Weekly subject review, vocabulary flashcards & 35mm film photography." }
+            ],
+            todos: [
+                { id: 1, text: "Finish presentation slides for Supply Chain", completed: false },
+                { id: 2, text: "Submit individual Marketing assignment", completed: true },
+                { id: 3, text: "Check lecturer emails regarding ECUS lab room", completed: false }
+            ],
+            goals: [
+                { id: 1, tag: "Language", title: "B1/B2 English Certificate", desc: "Daily 30 mins listening & logistics terms practice." },
+                { id: 2, tag: "Travel", title: "Graduation Trip Budget", desc: "Plan itinerary and savings target for sea trip." },
+                { id: 3, tag: "Hobby", title: "35mm Film Photography", desc: "Capture 2 film rolls of urban container ports." }
+            ],
+            resources: {
+                res1: { name: "Import-Export ECUS Form", desc: "Customs declaration templates" },
+                res2: { name: "Vocabulary Handbook", desc: "Incoterms & logistics glossary" },
+                res3: { name: "Quick Idea Notes", desc: "Supply chain case studies" }
+            }
+        };
+
+        // LOAD DATA FROM LOCALSTORAGE OR USE DEFAULTS
+        let appData = JSON.parse(localStorage.getItem('chloe_workbench_data')) || defaultData;
+
+        // INITIALIZE APP ON LOAD
+        window.onload = function() {
+            renderDate();
+            renderAllData();
+            setupEditableListeners();
+            lucide.createIcons();
+        };
+
+        // DATE DISPLAY
+        function renderDate() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const today = new Date();
+            document.getElementById('current-date-str').textContent = today.toLocaleDateString('en-US', options);
+        }
+
+        // RENDER DATA TO DOM
+        function renderAllData() {
+            // Header & Quote
+            document.getElementById('user-name').textContent = appData.userName || "Chloe";
+            document.getElementById('daily-quote').textContent = appData.quote || defaultData.quote;
+
+            // KPIs
+            if (appData.kpis) {
+                document.getElementById('kpi1-title').textContent = appData.kpis.kpi1.title;
+                document.getElementById('kpi1-curr').textContent = appData.kpis.kpi1.curr;
+                document.getElementById('kpi1-target').textContent = appData.kpis.kpi1.target;
+                document.getElementById('kpi1-note').textContent = appData.kpis.kpi1.note;
+
+                document.getElementById('kpi2-title').textContent = appData.kpis.kpi2.title;
+                document.getElementById('kpi2-curr').textContent = appData.kpis.kpi2.curr;
+                document.getElementById('kpi2-target').textContent = appData.kpis.kpi2.target;
+                document.getElementById('kpi2-note').textContent = appData.kpis.kpi2.note;
+
+                document.getElementById('kpi3-title').textContent = appData.kpis.kpi3.title;
+                document.getElementById('kpi3-curr').textContent = appData.kpis.kpi3.curr;
+                document.getElementById('kpi3-target').textContent = appData.kpis.kpi3.target;
+                document.getElementById('kpi3-note').textContent = appData.kpis.kpi3.note;
+                
+                // Update Progress bar width based on KPI 3
+                const pct = parseInt(appData.kpis.kpi3.curr) || 65;
+                document.getElementById('kpi3-bar').style.width = Math.min(100, Math.max(0, pct)) + '%';
+
+                document.getElementById('kpi4-title').textContent = appData.kpis.kpi4.title;
+                document.getElementById('kpi4-curr').textContent = appData.kpis.kpi4.curr;
+                document.getElementById('kpi4-target').textContent = appData.kpis.kpi4.target;
+                document.getElementById('kpi4-note').textContent = appData.kpis.kpi4.note;
+            }
+
+            // Render Schedules
+            renderScheduleList();
+
+            // Render Todos
+            renderTodoList();
+
+            // Render Goals
+            renderGoalsGrid();
+
+            // Resources
+            if(appData.resources) {
+                document.getElementById('res1-name').textContent = appData.resources.res1.name;
+                document.getElementById('res1-desc').textContent = appData.resources.res1.desc;
+                document.getElementById('res2-name').textContent = appData.resources.res2.name;
+                document.getElementById('res2-desc').textContent = appData.resources.res2.desc;
+                document.getElementById('res3-name').textContent = appData.resources.res3.name;
+                document.getElementById('res3-desc').textContent = appData.resources.res3.desc;
+            }
+        }
+
+        // RENDER SCHEDULE LIST
+        function renderScheduleList() {
+            const container = document.getElementById('schedule-list');
+            container.innerHTML = '';
+            
+            appData.schedule.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-2xl bg-white/50 border border-white/60 hover:bg-white/80 transition gap-2';
+                div.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="px-3 py-1 rounded-xl text-xs font-bold bg-rose-100 text-roseAccent tracking-wide uppercase shrink-0 editable-text" 
+                              onblur="updateSchedule(${index}, 'day', this.innerText)" contenteditable="true">${item.day}</span>
+                        <span class="text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md editable-text" 
+                              onblur="updateSchedule(${index}, 'tag', this.innerText)" contenteditable="true">${item.tag}</span>
+                    </div>
+                    <p class="text-xs md:text-sm text-slate-700 font-medium flex-1 sm:ml-4 editable-text" 
+                       onblur="updateSchedule(${index}, 'detail', this.innerText)" contenteditable="true">${item.detail}</p>
+                    <button onclick="deleteSchedule(${index})" class="text-slate-300 hover:text-roseAccent text-xs self-end sm:self-center transition">
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                    </button>
+                `;
+                container.appendChild(div);
+            });
+            lucide.createIcons();
+        }
+
+        // RENDER TODO LIST
+        function renderTodoList() {
+            const container = document.getElementById('todo-list');
+            container.innerHTML = '';
+
+            let completedCount = 0;
+
+            appData.todos.forEach((todo, index) => {
+                if (todo.completed) completedCount++;
+
+                const div = document.createElement('div');
+                div.className = `flex items-center justify-between p-2.5 rounded-xl bg-white/60 border border-white/80 transition ${todo.completed ? 'opacity-60' : ''}`;
+                div.innerHTML = `
+                    <div class="flex items-center gap-2.5 flex-1 mr-2">
+                        <input type="checkbox" ${todo.completed ? 'checked' : ''} 
+                               onchange="toggleTodo(${index})" 
+                               class="w-4 h-4 rounded text-roseAccent focus:ring-roseAccent border-slate-300 cursor-pointer">
+                        <span class="text-xs md:text-sm font-medium text-slate-700 editable-text flex-1 ${todo.completed ? 'line-through text-slate-400' : ''}" 
+                              onblur="updateTodoText(${index}, this.innerText)" contenteditable="true">${todo.text}</span>
+                    </div>
+                    <button onclick="deleteTodo(${index})" class="text-slate-300 hover:text-roseAccent transition">
+                        <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                    </button>
+                `;
+                container.appendChild(div);
+            });
+
+            document.getElementById('todo-count').textContent = `${completedCount}/${appData.todos.length}`;
+            lucide.createIcons();
+        }
+
+        // RENDER GOALS GRID
+        function renderGoalsGrid() {
+            const container = document.getElementById('goals-grid');
+            container.innerHTML = '';
+
+            appData.goals.forEach((goal, index) => {
+                const div = document.createElement('div');
+                div.className = 'p-4 rounded-2xl bg-white/50 border border-white/80 flex flex-col justify-between hover:bg-white/80 transition space-y-2';
+                div.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-roseAccent bg-rose-50 px-2 py-0.5 rounded-md editable-text" 
+                                  onblur="updateGoal(${index}, 'tag', this.innerText)" contenteditable="true">${goal.tag}</span>
+                            <button onclick="deleteGoal(${index})" class="text-slate-300 hover:text-roseAccent text-xs transition">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-sm editable-text" 
+                            onblur="updateGoal(${index}, 'title', this.innerText)" contenteditable="true">${goal.title}</h4>
+                        <p class="text-xs text-slate-500 mt-1 leading-relaxed editable-text" 
+                           onblur="updateGoal(${index}, 'desc', this.innerText)" contenteditable="true">${goal.desc}</p>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            lucide.createIcons();
+        }
+
+        // AUTO SAVE LISTENERS FOR INLINE EDITABLE ELEMENTS
+        function setupEditableListeners() {
+            document.querySelectorAll('[contenteditable="true"]').forEach(element => {
+                element.addEventListener('blur', () => {
+                    saveAllFromDOM();
+                    showToast('Changes saved');
+                });
+            });
+        }
+
+        // COLLECT CURRENT DOM STATE AND SAVE TO LOCALSTORAGE
+        function saveAllFromDOM() {
+            appData.userName = document.getElementById('user-name').innerText.trim();
+            appData.quote = document.getElementById('daily-quote').innerText.trim();
+
+            appData.kpis.kpi1 = {
+                title: document.getElementById('kpi1-title').innerText,
+                curr: document.getElementById('kpi1-curr').innerText,
+                target: document.getElementById('kpi1-target').innerText,
+                note: document.getElementById('kpi1-note').innerText
+            };
+            appData.kpis.kpi2 = {
+                title: document.getElementById('kpi2-title').innerText,
+                curr: document.getElementById('kpi2-curr').innerText,
+                target: document.getElementById('kpi2-target').innerText,
+                note: document.getElementById('kpi2-note').innerText
+            };
+            appData.kpis.kpi3 = {
+                title: document.getElementById('kpi3-title').innerText,
+                curr: document.getElementById('kpi3-curr').innerText,
+                target: document.getElementById('kpi3-target').innerText,
+                note: document.getElementById('kpi3-note').innerText
+            };
+            // Update bar width dynamically
+            const pct = parseInt(appData.kpis.kpi3.curr) || 65;
+            document.getElementById('kpi3-bar').style.width = Math.min(100, Math.max(0, pct)) + '%';
+
+            appData.kpis.kpi4 = {
+                title: document.getElementById('kpi4-title').innerText,
+                curr: document.getElementById('kpi4-curr').innerText,
+                target: document.getElementById('kpi4-target').innerText,
+                note: document.getElementById('kpi4-note').innerText
+            };
+
+            appData.resources = {
+                res1: { name: document.getElementById('res1-name').innerText, desc: document.getElementById('res1-desc').innerText },
+                res2: { name: document.getElementById('res2-name').innerText, desc: document.getElementById('res2-desc').innerText },
+                res3: { name: document.getElementById('res3-name').innerText, desc: document.getElementById('res3-desc').innerText }
+            };
+
+            localStorage.setItem('chloe_workbench_data', JSON.stringify(appData));
+        }
+
+        // QUICK INPUT HANDLER (ADDS TO-DO OR NOTE)
+        function handleQuickAdd() {
+            const input = document.getElementById('quick-input-field');
+            const val = input.value.trim();
+            if (!val) return;
+
+            appData.todos.unshift({ id: Date.now(), text: val, completed: false });
+            input.value = '';
+            saveAllFromDOM();
+            renderTodoList();
+            showToast('New task added from quick bar!');
+        }
+
+        // SCHEDULE MUTATIONS
+        function updateSchedule(index, key, val) {
+            appData.schedule[index][key] = val;
+            saveAllFromDOM();
+        }
+
+        function addScheduleBlock() {
+            appData.schedule.push({
+                id: Date.now(),
+                day: "Fri",
+                tag: "Elective",
+                detail: "Add new lecture or study block details here."
+            });
+            saveAllFromDOM();
+            renderScheduleList();
+            showToast('New schedule day added!');
+        }
+
+        function deleteSchedule(index) {
+            appData.schedule.splice(index, 1);
+            saveAllFromDOM();
+            renderScheduleList();
+            showToast('Schedule item removed');
+        }
+
+        // TODO MUTATIONS
+        function addTodoItem() {
+            const input = document.getElementById('new-todo-input');
+            const val = input.value.trim();
+            if (!val) return;
+
+            appData.todos.push({ id: Date.now(), text: val, completed: false });
+            input.value = '';
+            saveAllFromDOM();
+            renderTodoList();
+            showToast('Task added');
+        }
+
+        function toggleTodo(index) {
+            appData.todos[index].completed = !appData.todos[index].completed;
+            saveAllFromDOM();
+            renderTodoList();
+        }
+
+        function updateTodoText(index, text) {
+            appData.todos[index].text = text;
+            saveAllFromDOM();
+        }
+
+        function deleteTodo(index) {
+            appData.todos.splice(index, 1);
+            saveAllFromDOM();
+            renderTodoList();
+            showToast('Task deleted');
+        }
+
+        // GOAL MUTATIONS
+        function updateGoal(index, key, val) {
+            appData.goals[index][key] = val;
+            saveAllFromDOM();
+        }
+
+        function addGoalItem() {
+            appData.goals.push({
+                id: Date.now(),
+                tag: "Growth",
+                title: "New Personal Goal",
+                desc: "Describe your personal or lifestyle objective here."
+            });
+            saveAllFromDOM();
+            renderGoalsGrid();
+            showToast('New goal added!');
+        }
+
+        function deleteGoal(index) {
+            appData.goals.splice(index, 1);
+            saveAllFromDOM();
+            renderGoalsGrid();
+            showToast('Goal removed');
+        }
+
+        // RESET TO DEFAULT
+        function resetDefaultData() {
+            if (confirm("Reset workbench back to default Logistics template data?")) {
+                appData = JSON.parse(JSON.stringify(defaultData));
+                localStorage.setItem('chloe_workbench_data', JSON.stringify(appData));
+                renderAllData();
+                showToast('Reset to default values');
+            }
+        }
+
+        // TOAST NOTIFICATION UTILITY
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = msg;
+            toast.classList.remove('translate-y-[-100px]', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-[-100px]', 'opacity-0');
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
